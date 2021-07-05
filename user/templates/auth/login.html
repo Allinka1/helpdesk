@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block doctitle %}Login |{{ block.super }}{% endblock %}
+{% block content %}
+<h1>Hello, it's page for login</h1>
+<form method='post'>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <fieldset>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </fieldset>
+</form>
+{% endblock %}
