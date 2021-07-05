@@ -1,13 +1,12 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container">
-    <a class="navbar-brand" href="#">Navbar</a>
+    <a class="navbar-brand" href="{% url "request:list" %}">Helpdesk</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        {# <li class="nav-item"><a href="{% url "home" %}" class="nav-link">Home</a></li> #}
         {# {% if request.user.is_authenticated %} #}
           {# <li class="nav-item"><a href="{% url "refund:refund_list" %}" class="nav-link">Refunds</a></li> #}
         {# {% endif %} #}
@@ -17,7 +16,6 @@
       </ul>
       {% if request.user.is_authenticated %}
          <a href='{% url 'logout' %}' class="nav-link">Logout</a>
-         <a href='{% url 'profile' %}' class="nav-link">Profile</a>
       {% else %}
         <a href="{% url "login" %}" class="nav-link">Login</a>
         <a href="{% url "register" %}" class="nav-link">Register</a>

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block doctitle %}Request | {{ block.super }}{% endblock %}
+{% block content %}
+  <div class="row">
+    <h5 class="col">Request Detail</h5>
+    <span class="col">{{ object.created_at|naturaltime }}</span>
+    <hr>
+  </div>
+  <div class="row">
+    <div class="col">{{ object.status }}</div>
+    <div class="col">{{ object.priority }}</div>
+    <div class="col">{{ object.title }}</div>
+    <div class="col">{{ object.description }}</div>
+  </div>
+{% endblock %}

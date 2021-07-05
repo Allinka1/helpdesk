@@ -19,7 +19,7 @@ class UserLoginView(LoginView):
 
     def get_success_url(self):
 
-        return reverse_lazy("/")
+        return reverse_lazy("request:list")
 
 
 class UserLogoutView(LoginRequiredMixin, View):

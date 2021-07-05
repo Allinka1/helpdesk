@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block doctitle %}Requests | {{ block.super }}{% endblock %}
+{% block content %}
+  <div class="row">
+    <div class="col">
+      <table class="table table-striped text-center">
+        <thead>
+          <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Date</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for request in object_list %}
+            <tr>
+              <td>{{ request.title }}</td>
+              <td>{{ request.created_at }}</td>
+              <td>
+                <a href="{% url "request:detail" pk=request.pk %}" class="btn btn-primary">Detail</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if object_list|length == 0 %}
+        <small class="text-muted">Not available</small>
+      {% endif %}
+      <div class="row">
+        <div class="col">
+          <p class="text">Do you want to create a request?
+            <a href="{% url "request:create" %}">Create Request</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
