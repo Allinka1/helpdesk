@@ -1,16 +1,109 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load crispy_forms_filters %}
 {% block doctitle %}Request | {{ block.super }}{% endblock %}
 {% block content %}
   <div class="row">
     <h5 class="col">Request Detail</h5>
+    <table class="table table-striped text-center">
+        <thead>
+          <tr>
+            <th scope="col">Status</th>
+            <th scope="col">Priority</th>
+            <th scope="col">Title</th>
+            <th scope="col">Descriptions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ object.get_status_display }}</td>
+            <td>{{ object.get_priority_display }}</td>
+            <td>{{ object.title }}</td>
+            <td>{{ object.description }}</td>
+            <td>
+              {% if not user.is_staff %}
+                <a href="{% url "request:change" pk=request.pk %}" class="btn btn-primary">Change</a>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     <span class="col">{{ object.created_at|naturaltime }}</span>
-    <hr>
+
+    <div id="comment-list">
+      {% for comment in object.comment_set.all %}
+        <div class="row mt-3">
+          <div class="col-2 text-muted">{{ comment.user }}</div>
+          <div class="col-10 text-muted">{{ comment.created_at }}</div>
+          <div class="col-12 mt-1 text-body">{{ comment|linebreaks }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if form and object.status == "active" %}
+      <form action="{% url "comment:create" %}" method="post" id="comment-form">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <input type="submit" value="Submit" class="btn btn-outline-primary mt-3">
+      </form>
+    {% endif %}
   </div>
-  <div class="row">
-    <div class="col">{{ object.status }}</div>
-    <div class="col">{{ object.priority }}</div>
-    <div class="col">{{ object.title }}</div>
-    <div class="col">{{ object.description }}</div>
-  </div>
+{% endblock %}
+{% block javascript %}
+  <script type="text/javascript">
+      const commentText = document.querySelector("textarea");
+      const commentList = document.getElementById("comment-list");
+      const commentForm = document.getElementById("comment-form");
+
+      const host = `${document.location.host}`;
+      const id = "{{object.id}}";
+      const websocket_url = `ws://${host}/${id}/`;
+      const CommentWebsocket = new WebSocket(websocket_url);
+
+      const createCommentItem = (comment_user, comment_created, comment_text) => {
+          const user = document.createElement("div");
+          user.classList.add("col-2");
+          user.classList.add("text-muted");
+          user.textContent = `${comment_user}`;
+
+          const created_at = document.createElement("div");
+          created_at.classList.add("col-10");
+          created_at.classList.add("text-muted");
+          created_at.textContent = `${comment_created}`;
+
+          const text = document.createElement("div");
+          text.classList.add("col-12")
+          text.classList.add("mt-1")
+          text.classList.add("text-body")
+
+          text.textContent = `${comment_text}`;
+
+          const comment = document.createElement("div");
+          comment.classList.add("row");
+          comment.classList.add("mt-3");
+          comment.appendChild(user);
+          comment.appendChild(created_at);
+          comment.appendChild(text);
+
+          return comment
+      }
+
+      commentForm.addEventListener("submit", event => {
+          event.preventDefault();
+          CommentWebsocket.send(JSON.stringify({
+              "body": commentText.value
+          }));
+          commentForm.reset();
+      });
+
+      CommentWebsocket.addEventListener("message", event => {
+          const data = JSON.parse(event.data);
+          console.log(data)
+          const comment = createCommentItem(
+              data.user, data.created_at, data.body
+          )
+          console.log(comment)
+          commentList.appendChild(comment);
+      });
+  </script>
 {% endblock %}

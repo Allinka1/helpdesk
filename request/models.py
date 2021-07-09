@@ -1,7 +1,14 @@
+"""
+Request Application Models
+===========================
+
+"""
+
 from django.db import models
 
 
 class Request(models.Model):
+    """Request model implementation"""
 
     ACTIVE = 1
     CONFIRMED = 2
@@ -38,6 +45,7 @@ class Request(models.Model):
     title = models.CharField(max_length=55, null=False)
     description = models.TextField(null=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    reject_message = models.TextField(null=True, blank=True)
 
 
     class Meta:
@@ -46,4 +54,11 @@ class Request(models.Model):
 
 
     def __repr__(self):
-        return f'<Request ("{self.id}")>'
+        return f'<Request ("{self.id}") ("{self.status}")>'
+
+
+class RestoredRequest(Request):
+    """ Restored Request model implementation"""
+
+    class Meta:
+        proxy = True

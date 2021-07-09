@@ -1,14 +1,17 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView, DetailView, DeleteView
+from django.views.generic import (CreateView, ListView, DetailView,
+                                  DeleteView, UpdateView)
 from request.models import Request
 from request.forms import RequestForm
+from comments.forms import CommentForm
 import pdb
 
 
 def check_user(user, user_request):
-    if user != user_request.user:
+    if user != user_request.user and not user.is_staff:
         raise PermissionDenied
 
 
@@ -37,7 +40,10 @@ class RequestListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = super(RequestListView, self).get_queryset()
 
-        return queryset.filter(user=self.request.user)
+        if self.request.user.is_staff:
+            return queryset.filter(status=1)
+        else:
+            return queryset.filter(user=self.request.user)
 
 
 class RequestDetailView(LoginRequiredMixin, DetailView):
@@ -53,6 +59,19 @@ class RequestDetailView(LoginRequiredMixin, DetailView):
 
         return super(RequestDetailView, self).get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(RequestDetailView, self).get_context_data(**kwargs)
+
+        user = self.request.user
+        if user.is_authenticated:
+            initial_data = {
+                "request": self.get_object(),
+                "user": user
+            }
+            context["form"] = CommentForm(initial=initial_data)
+
+        return context
+
 
 class RequestDeleteView(LoginRequiredMixin, DeleteView):
     """Request delete view implementation"""
@@ -67,3 +86,47 @@ class RequestDeleteView(LoginRequiredMixin, DeleteView):
         check_user(request.user, self.get_object())
 
         return super(RequestDeleteView, self).post(request, *args, **kwargs)
+
+
+class RequestUpdateView(LoginRequiredMixin, UpdateView):
+    """Request Update view implementation"""
+
+    model = Request
+    http_method_names = ["post"]
+    exclude = ["__all__"]
+    success_url = "/"
+
+    def post(self, request, *args, **kwargs):
+        """Handle Request update status"""
+
+        request = Request.objects.all().filter(id=kwargs['pk'])
+        request.update(status=4)
+        return super(RequestUpdateView, self).post(request, *args, **kwargs)
+
+
+class FormUpdateView(LoginRequiredMixin, UpdateView):
+    """Form Update view implementation"""
+
+    model = Request
+    form_class = RequestForm
+    template_name = "request/request_form.html"
+    success_url = reverse_lazy("request:list")
+    http_method_names = ["get", "post"]
+
+    def get(self, request, *args, **kwargs):
+        """Prohibit admin updating request"""
+        if self.request.user.is_staff:
+            raise PermissionDenied
+
+        return super(FormUpdateView, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        if 'title' in form.changed_data:
+            redirect_url = reverse_lazy("request:change", kwargs={"pk": form.instance.id})
+            return HttpResponseRedirect(redirect_url)
+
+        if form.is_valid():
+            form.instance.user = self.request.user
+            form.save()
+
+        return super(FormUpdateView, self).form_valid(form)

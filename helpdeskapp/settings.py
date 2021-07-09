@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'comments.apps.CommentsConfig',
     'django.contrib.humanize',
     'crispy_forms',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -73,6 +74,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'helpdeskapp.wsgi.application'
+ASGI_APPLICATION = 'helpdeskapp.asgi.application'
 
 
 # Database
@@ -127,3 +129,12 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)]
+        }
+    }
+}

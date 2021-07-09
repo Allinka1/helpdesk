@@ -8,6 +8,7 @@
         <thead>
           <tr>
             <th scope="col">Title</th>
+            <th scope="col">Status</th>
             <th scope="col">Date</th>
             <th scope="col">Actions</th>
           </tr>
@@ -16,9 +17,16 @@
           {% for request in object_list %}
             <tr>
               <td>{{ request.title }}</td>
+              <td>{{ request.get_status_display }}</td>
               <td>{{ request.created_at }}</td>
               <td>
                 <a href="{% url "request:detail" pk=request.pk %}" class="btn btn-primary">Detail</a>
+                {% if request.status == 3 %}
+                  <form action="{% url "request:update" pk=request.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-success" value="Restore"/>
+                  </form>
+                {% endif%}
               </td>
             </tr>
           {% endfor %}

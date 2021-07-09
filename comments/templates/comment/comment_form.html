@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% block doctitle %}Create Comment | {{ block.super }}{% endblock %}
+{% block content %}
+  <form method="post" class="row row-cols-2">
+    {% csrf_token %}
+    <div class="col">
+      {{ form|crispy }}
+    </div>
+    <div class="col-12">
+      <input type="submit" class="btn btn-primary col-1" value="Create">
+      <a href="{% url "request:list" %}" class="col-1 btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+{% endblock content %}
