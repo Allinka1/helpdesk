@@ -1,13 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import (CreateView, ListView, DetailView,
                                   DeleteView, UpdateView)
 from request.models import Request
-from request.forms import RequestForm
+from request.forms import RequestForm, RequestUpdateForm
 from comments.forms import CommentForm
-import pdb
 
 
 def check_user(user, user_request):
@@ -108,7 +106,7 @@ class FormUpdateView(LoginRequiredMixin, UpdateView):
     """Form Update view implementation"""
 
     model = Request
-    form_class = RequestForm
+    form_class = RequestUpdateForm
     template_name = "request/request_form.html"
     success_url = reverse_lazy("request:list")
     http_method_names = ["get", "post"]
@@ -121,10 +119,6 @@ class FormUpdateView(LoginRequiredMixin, UpdateView):
         return super(FormUpdateView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
-        if 'title' in form.changed_data:
-            redirect_url = reverse_lazy("request:change", kwargs={"pk": form.instance.id})
-            return HttpResponseRedirect(redirect_url)
-
         if form.is_valid():
             form.instance.user = self.request.user
             form.save()

@@ -12,7 +12,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     model = Comment
     form_class = CommentForm
-    template_name = "comments/comment_form.html"
+    template_name = "comment/comment_form.html"
     success_url = reverse_lazy("request:list")
 
     def form_valid(self, form):

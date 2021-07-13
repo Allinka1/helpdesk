@@ -40,7 +40,7 @@
       {% endfor %}
     </div>
 
-    {% if form and object.status == "active" %}
+    {% if form and object.status == object.ACTIVE %}
       <form action="{% url "comment:create" %}" method="post" id="comment-form">
         {% csrf_token %}
         {{ form|crispy }}
@@ -98,11 +98,9 @@
 
       CommentWebsocket.addEventListener("message", event => {
           const data = JSON.parse(event.data);
-          console.log(data)
           const comment = createCommentItem(
               data.user, data.created_at, data.body
           )
-          console.log(comment)
           commentList.appendChild(comment);
       });
   </script>

@@ -54,7 +54,7 @@ class Request(models.Model):
 
 
     def __repr__(self):
-        return f'<Request ("{self.id}") ("{self.status}")>'
+        return f'<Request ("{self.id}") ("{self.user}")>'
 
 
 class RestoredRequest(Request):

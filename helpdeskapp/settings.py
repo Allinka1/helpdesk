@@ -40,9 +40,12 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'request.apps.RequestConfig',
     'comments.apps.CommentsConfig',
+    'api.apps.APIConfig',
     'django.contrib.humanize',
     'crispy_forms',
     'channels',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -138,3 +141,15 @@ CHANNEL_LAYERS = {
         }
     }
 }
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ]
+}
+
+TOKEN_EXPIRED_AFTER_SECONDS = 5 * 60
+# SESSION_COOKIE_AGE = 300
+# SESSION_SAVE_EVERY_REQUES = True

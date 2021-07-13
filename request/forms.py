@@ -17,3 +17,10 @@ class RequestForm(forms.ModelForm):
         widgets = {
             "description": forms.Textarea(attrs={"rows": 3}),
         }
+
+
+class RequestUpdateForm(RequestForm):
+    """Request update form implementation"""
+    class Meta:
+        model = Request
+        fields = ["priority", "description"]

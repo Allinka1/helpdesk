@@ -74,7 +74,7 @@ class CommentRequestConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def create_new_comment(self, body):
         request = Request.objects.get(id=self.request_id)
-        if request.status != "active":
+        if request.status != Request.ACTIVE:
             raise PermissionDenied
         return Comment.objects.create(
             user=self.scope["user"],
