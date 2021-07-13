@@ -4,10 +4,15 @@ from rest_framework.generics import (ListCreateAPIView, RetrieveUpdateAPIView,
                                      CreateAPIView, )
 from rest_framework.mixins import CreateModelMixin
 
-from request.models import Request
-from request.serializers import RequestSerializer, RequestUpdateSerializer
+from rest_framework import serializers
 
-import pdb
+from request.models import Request
+from request.serializers import (RequestSerializer, RequestUpdateSerializer,
+                                 RequestUpdateStatusSerializer)
+
+from django.core.exceptions import PermissionDenied
+
+
 class RequestListAPIView(ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
@@ -41,7 +46,7 @@ class RequestCreateAPIView(CreateAPIView, CreateModelMixin):
         serializer.save(user=self.request.user)
 
 
-class RequestRestoredAPIView(ListCreateAPIView):
+class RequestRestoredListAPIView(ListCreateAPIView):
     serializer_class = RequestSerializer
 
     def get_queryset(self):
@@ -50,14 +55,46 @@ class RequestRestoredAPIView(ListCreateAPIView):
             return Request.objects.filter(status=4)
 
 
-class RequestConfirmAPIView(CreateAPIView):
-    serializer_class = RequestSerializer
+class RequestConfirmAPIView(RetrieveUpdateAPIView):
+    serializer_class = RequestUpdateStatusSerializer
     queryset = Request.objects.all()
     lookup_url_kwargs = 'pk'
     lookup_fields = 'pk'
 
-
-    def perform_create(self, serializer):
+    def perform_update(self, serializer):
         user = self.request.user
         if user.is_staff:
             serializer.save(status=2)
+        else:
+            raise PermissionDenied
+
+
+class RequestRejectAPIView(RetrieveUpdateAPIView):
+    serializer_class = RequestUpdateStatusSerializer
+    queryset = Request.objects.all()
+    lookup_url_kwargs = 'pk'
+    lookup_fields = 'pk'
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        if user.is_staff:
+            if serializer.validated_data.get('reject_message') == None:
+                raise serializers.ValidationError('You must fill the reject message!')
+            else:
+                serializer.save(status=3)
+        else:
+            raise PermissionDenied
+
+
+class RequestRestoredAPIView(RetrieveUpdateAPIView):
+    serializer_class = RequestUpdateStatusSerializer
+    queryset = Request.objects.filter(status=3)
+    lookup_url_kwargs = 'pk'
+    lookup_fields = 'pk'
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        if not user.is_staff:
+            serializer.save(status=4)
+        else:
+            raise PermissionDenied

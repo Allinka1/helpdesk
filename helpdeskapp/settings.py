@@ -145,11 +145,11 @@ CHANNEL_LAYERS = {
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.TokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
+        "api.authtoken.ExpiringTokenAuthentication",
     ]
 }
 
 TOKEN_EXPIRED_AFTER_SECONDS = 5 * 60
-# SESSION_COOKIE_AGE = 300
-# SESSION_SAVE_EVERY_REQUES = True
+SESSION_COOKIE_AGE = 5 * 60
+SESSION_SAVE_EVERY_REQUEST = True

@@ -26,3 +26,9 @@ class RequestSerializer(serializers.HyperlinkedModelSerializer):
 class RequestUpdateSerializer(RequestSerializer):
     status = serializers.IntegerField(read_only=False)
     title = serializers.CharField(read_only=True)
+
+
+class RequestUpdateStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = ['status', 'reject_message']
