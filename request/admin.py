@@ -9,7 +9,6 @@ from django.contrib import messages
 
 from request.models import Request, RestoredRequest
 from django.http import HttpResponseRedirect
-import pdb
 
 
 @admin.register(Request)

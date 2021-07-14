@@ -12,6 +12,9 @@
             <th scope="col">Priority</th>
             <th scope="col">Title</th>
             <th scope="col">Descriptions</th>
+            {% if not user.is_staff and object.status == object.ACTIVE %}
+              <th scope="col">Actions</th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
@@ -19,9 +22,9 @@
             <td>{{ object.get_status_display }}</td>
             <td>{{ object.get_priority_display }}</td>
             <td>{{ object.title }}</td>
-            <td>{{ object.description }}</td>
+            <td class="text-truncate" style="max-width: 150px;">{{ object.description }}</td>
             <td>
-              {% if not user.is_staff %}
+              {% if not user.is_staff and object.status == object.ACTIVE %}
                 <a href="{% url "request:change" pk=request.pk %}" class="btn btn-primary">Change</a>
               {% endif %}
             </td>
@@ -75,7 +78,6 @@
           text.classList.add("col-12")
           text.classList.add("mt-1")
           text.classList.add("text-body")
-
           text.textContent = `${comment_text}`;
 
           const comment = document.createElement("div");

@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.views.generic import (CreateView, ListView, DetailView,
-                                  DeleteView, UpdateView)
+                                  UpdateView)
 from request.models import Request
 from request.forms import RequestForm, RequestUpdateForm
 from comments.forms import CommentForm
@@ -34,6 +34,7 @@ class RequestListView(LoginRequiredMixin, ListView):
 
     model = Request
     template_name = "request/request_list.html"
+    paginate_by = 5
 
     def get_queryset(self):
         queryset = super(RequestListView, self).get_queryset()
@@ -71,21 +72,6 @@ class RequestDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class RequestDeleteView(LoginRequiredMixin, DeleteView):
-    """Request delete view implementation"""
-
-    model = Request
-    template_name = "request/request_delete.html"
-    success_url = reverse_lazy("request:list")
-
-    def post(self, request, *args, **kwargs):
-        """Handle POST request"""
-
-        check_user(request.user, self.get_object())
-
-        return super(RequestDeleteView, self).post(request, *args, **kwargs)
-
-
 class RequestUpdateView(LoginRequiredMixin, UpdateView):
     """Request Update view implementation"""
 
@@ -117,10 +103,3 @@ class FormUpdateView(LoginRequiredMixin, UpdateView):
             raise PermissionDenied
 
         return super(FormUpdateView, self).get(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        if form.is_valid():
-            form.instance.user = self.request.user
-            form.save()
-
-        return super(FormUpdateView, self).form_valid(form)

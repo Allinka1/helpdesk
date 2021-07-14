@@ -14,10 +14,3 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     form_class = CommentForm
     template_name = "comment/comment_form.html"
     success_url = reverse_lazy("request:list")
-
-    def form_valid(self, form):
-        if form.is_valid():
-            form.instance.user = self.request.user
-            form.save()
-
-        return super(CommentCreateView, self).form_valid(form)
